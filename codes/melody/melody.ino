@@ -30,10 +30,9 @@ void init_buttons() {
 
 void init_player() {
   mySoftwareSerial.begin(9600);
-  //Inicializa a serial do Arduino
+
   Serial.begin(115200);
-  //Verifica se o modulo esta respondendo e se o
-  //cartao SD foi encontrado
+
   Serial.println();
   Serial.println(F("DFRobot DFPlayer Mini"));
   Serial.println(F("Initializing DFPlayer module ... Wait!"));
@@ -50,18 +49,18 @@ void init_player() {
 
 void setup()
 {
+  // initialize mp3 player
   init_player();
 
   Serial.println(F("DFPlayer Mini module initialized!"));
   nfc.begin();
 
-  // check for nfc connection
+  // check for RFID connection
   uint32_t versiondata = nfc.getFirmwareVersion();
   if (! versiondata) {
     Serial.print("Didn't find PN53x board");
-    while (1); // halt
+    while (1); 
   }
-  // Got ok data, print it out!
   Serial.print("Found chip PN5"); Serial.println((versiondata >> 24) & 0xFF, HEX);
   Serial.print("Firmware ver. "); Serial.print((versiondata >> 16) & 0xFF, DEC);
   Serial.print('.'); Serial.println((versiondata >> 8) & 0xFF, DEC);
@@ -71,11 +70,12 @@ void setup()
 
   Serial.println("Waiting for an ISO14443A Card ...");
 
-  //Definicoes iniciais
+  // configure player
   myDFPlayer.setTimeOut(500); //Timeout serial 500ms
   myDFPlayer.volume(30); //Volume 5
   myDFPlayer.EQ(DFPLAYER_EQ_NORMAL);
 
+  // initialize buttons and interrupts 
   init_buttons();
 
 
@@ -136,11 +136,10 @@ void check_for_volumechange()
       lastVolumeUpdate = millis();
     }
   }
-
-
   // Update the last analog value for filtering in the next loop
   lastAnalogValue = rawAnalogValue;
 }
+
 void loop()
 {
   bool rfid_detected = check_for_rfid();
@@ -260,13 +259,6 @@ void loop()
   if (myDFPlayer.available()) {
     printDetail(myDFPlayer.readType(), myDFPlayer.read()); //Print the detail message from DFPlayer to handle different errors and states.
   }
-  // boot successful play welcome music
-
-  // when next button is pressed play next music
-  // when prev button in pressed play prev music
-
-  // shutdown music
-
 }
 
 void power_state_callback() {
