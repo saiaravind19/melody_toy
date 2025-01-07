@@ -2,6 +2,14 @@
 
 A customizable RFID-based music player. Organize your SD card to play specific playlists when RFID tags are scanned.
 
+## Repo overview
+
+- Codes
+    - [RFID Formatter](codes/format_rfid_ndef/format_rfid_ndef.ino) is used to format RFID.
+    - [RFID writer](codes/rfid_write/rfid_write.ino) is used to format RFID.
+    - [Melody toy](codes/melody/melody.ino) is the code for toy.
+- references
+    - [Sample](references/sample.zip) is the sample SD card setup used during developing and testing the stack.
 
 ## SD Card Setup
 
@@ -56,7 +64,7 @@ The SD card should follow this structure:
   - **Custom naming conventions are not allowed.**
 - Each folder can hold a maximum of **255 MP3 files**.
 
-[Sample for SD card](references/sample.zip).
+Refer to [Sample for SD card](references/sample.zip) which is used for the demo for more insights.
 
 
 ## System setup
