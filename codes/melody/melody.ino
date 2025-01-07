@@ -1,48 +1,19 @@
 #include "Pinout.h"
-#include "SoftwareSerial.h"
-#include "DFRobotDFPlayerMini.h"
-#include <SPI.h>
-#include <PN532_SPI.h>
-#include <PN532.h>
-#include <NfcAdapter.h>
 
-#include "PinChangeInterrupt.h"
 
-#include <SPI.h>
-
-SoftwareSerial mySoftwareSerial(software_rx, software_tx); // RX, TX
-DFRobotDFPlayerMini myDFPlayer;
+SoftwareSerial mySoftwareSerial(software_rx, software_tx);
 PN532_SPI pn532spi(SPI, 10);
 PN532 nfc(pn532spi);
-
-
-unsigned long prev_power = 0;
-unsigned long lastVolumeUpdate = 0;
-
-
-int file_index = 0;
-int player_index = 1;
-int player_index_limit = 0;
-
-bool player_prev_state = 1;
-OperationMode device_state = POWER_OFF;
-
-PlayerMode current_state = -1;
-
-unsigned int current_volume = 30;
-unsigned int lastAnalogValue = 0;
 
 
 uint8_t uid[] = { 0, 0, 0, 0, 0, 0, 0 };  // Buffer to store the returned UID
 uint8_t uidLength;
 
 
-
 void prev_track();
 void next_track();
 void power_callback();
 void power_state_callback();
-bool power_button_flag = false;
 
 void init_buttons() {
   pinMode(play_pause_button, INPUT);
@@ -79,8 +50,6 @@ void init_player() {
 
 void setup()
 {
-
-
   init_player();
 
   Serial.println(F("DFPlayer Mini module initialized!"));
@@ -117,9 +86,6 @@ void check_for_change() {
   { player_prev_state = !player_prev_state;
     power_callback();
   }
-
-
-
 }
 
 int read_rfid()
@@ -180,9 +146,9 @@ void loop()
   bool rfid_detected = check_for_rfid();
 
   check_for_change();
-  
+
   if (millis() - lastVolumeUpdate > VOLUME_UPDATE_DELAY)check_for_volumechange();
-  
+
   if (power_button_flag)
   {
     power_state_callback();

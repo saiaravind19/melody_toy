@@ -2,7 +2,6 @@
 
 A customizable RFID-based music player. Organize your SD card to play specific playlists when RFID tags are scanned.
 
----
 
 ## SD Card Setup
 
@@ -58,4 +57,65 @@ The SD card should follow this structure:
 - Each folder can hold a maximum of **255 MP3 files**.
 
 [Sample for SD card](references/sample.zip).
+
+
+## System Requirements
+
+- [Arduino IDE](https://www.arduino.cc/en/software).
+
+## Liberary used & Installtion Guide
+
+```
+- SoftwareSerial
+- DFRobotDFPlayerMini
+- PN532
+```
+### Installation Steps:
+
+1. **SoftwareSerial** and **DFRobotDFPlayerMini**:  
+   Install these libraries using the **Arduino Library Manager**.  
+   - Go to **Tools** → **Manage Libraries** → Search and install.
+
+2. **PN532**:  
+   To install and configure the PN532 library, refer to the [PN532 setup guide](https://dangerousthings.com/wp-content/uploads/PN532_Manual_V3.pdf#:~:text=Here%20we%20show%20how%20to%20read%20and%20write,open%20Serial%20monitor.%20Put%20a%20card%20on%20it%3A).
+
+
+# Adding a New Story
+
+To add new stories, you need:
+- An **RFID card**.
+- The story files stored on the SD card in their respective directories.
+
+
+## Step 1: Formatting the RFID Card
+
+1. Upload the [RFID Formatter](codes/format_rfid_ndef/format_rfid_ndef.ino) sketch to your Arduino.
+2. Open the **Serial Monitor** and set the baud rate to **115200**.
+3. Follow the on-screen instructions:
+   - Once the RFID module is detected, the code will prompt you to **press any key** to trigger the formatting process.
+
+## Step 2: Configuring the RFID Card
+
+1. Update the data block with the necessary key for the RFID card.  
+   Replace the contents of `dataBlock` in the [RFID Writer](codes/rfid_write/rfid_write.ino) sketch:
+
+    ```c
+    uint8_t dataBlock[16] = { 'u', 'n', 'l', 'o', 'c', 'k', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0'};
+    ```
+2. Upload the updated sketch to your Arduino.
+3. Open the **Serial Monitor** and set the baud rate to **115200**.
+4. Follow the on-screen instructions:
+   - Once the RFID module is detected, the code will prompt you to **press any key** to write data to the RFID card.
+
+
+### Alternative: Using a Mobile NFC Tool
+
+If your mobile supports NFC, you can use the [MIFARE Classic Tool](https://play.google.com/store/apps/details?id=de.syss.MifareClassicTool&hl=en-US) app to:
+- Format the RFID card.
+- Write data to the RFID card.
+
+# References 
+- [PN532 user manaual](https://dangerousthings.com/wp-content/uploads/PN532_Manual_V3.pdf#:~:text=Here%20we%20show%20how%20to%20read%20and%20write,open%20Serial%20monitor.%20Put%20a%20card%20on%20it%3A).
+- [DFmini player](https://wiki.dfrobot.com/DFPlayer_Mini_SKU_DFR0299#target_6).
+- [PN532 Library](https://github.com/elechouse/PN532).
 
