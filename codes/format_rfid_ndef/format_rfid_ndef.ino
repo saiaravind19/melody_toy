@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*! 
+/*!
     This examples attempts to take a Mifare Classic 1K card that has been
     formatted for NDEF messages using mifareclassic_formatndef, and resets
     the authentication keys back to the Mifare Classic defaults
@@ -8,24 +8,12 @@
 */
 /**************************************************************************/
 
-#if 1
-  #include <SPI.h>
-  #include <PN532_SPI.h>
-  #include "PN532.h"
+#include <SPI.h>
+#include <PN532_SPI.h>
+#include "PN532.h"
 
-  PN532_SPI pn532spi(SPI, 10);
-  PN532 nfc(pn532spi);
-#elif 1
-  #include <PN532_HSU.h>
-  #include <PN532.h>
-      
-  PN532_HSU pn532hsu(Serial1);
-  PN532 nfc(pn532hsu);
-#else 
-  #include <Wire.h>
-  #include <PN532_I2C.h>
-  #include <PN532.h>
-#endif
+PN532_SPI pn532spi(SPI, 10);
+PN532 nfc(pn532spi);
 
 #define NR_SHORTSECTOR          (32)    // Number of short sectors on Mifare 1K/4K
 #define NR_LONGSECTOR           (8)     // Number of long sectors on Mifare 4K
@@ -34,13 +22,13 @@
 
 // Determine the sector trailer block based on sector number
 #define BLOCK_NUMBER_OF_SECTOR_TRAILER(sector) (((sector)<NR_SHORTSECTOR)? \
-  ((sector)*NR_BLOCK_OF_SHORTSECTOR + NR_BLOCK_OF_SHORTSECTOR-1):\
-  (NR_SHORTSECTOR*NR_BLOCK_OF_SHORTSECTOR + (sector-NR_SHORTSECTOR)*NR_BLOCK_OF_LONGSECTOR + NR_BLOCK_OF_LONGSECTOR-1))
+    ((sector)*NR_BLOCK_OF_SHORTSECTOR + NR_BLOCK_OF_SHORTSECTOR-1):\
+    (NR_SHORTSECTOR*NR_BLOCK_OF_SHORTSECTOR + (sector-NR_SHORTSECTOR)*NR_BLOCK_OF_LONGSECTOR + NR_BLOCK_OF_LONGSECTOR-1))
 
 // Determine the sector's first block based on the sector number
 #define BLOCK_NUMBER_OF_SECTOR_1ST_BLOCK(sector) (((sector)<NR_SHORTSECTOR)? \
-  ((sector)*NR_BLOCK_OF_SHORTSECTOR):\
-  (NR_SHORTSECTOR*NR_BLOCK_OF_SHORTSECTOR + (sector-NR_SHORTSECTOR)*NR_BLOCK_OF_LONGSECTOR))
+    ((sector)*NR_BLOCK_OF_SHORTSECTOR):\
+    (NR_SHORTSECTOR*NR_BLOCK_OF_SHORTSECTOR + (sector-NR_SHORTSECTOR)*NR_BLOCK_OF_LONGSECTOR))
 
 // The default Mifare Classic key
 static const uint8_t KEY_DEFAULT_KEYAB[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
@@ -56,12 +44,12 @@ void setup(void) {
     Serial.print("Didn't find PN53x board");
     while (1); // halt
   }
-  
+
   // Got ok data, print it out!
-  Serial.print("Found chip PN5"); Serial.println((versiondata>>24) & 0xFF, HEX); 
-  Serial.print("Firmware ver. "); Serial.print((versiondata>>16) & 0xFF, DEC); 
-  Serial.print('.'); Serial.println((versiondata>>8) & 0xFF, DEC);
-  
+  Serial.print("Found chip PN5"); Serial.println((versiondata >> 24) & 0xFF, HEX);
+  Serial.print("Firmware ver. "); Serial.print((versiondata >> 16) & 0xFF, DEC);
+  Serial.print('.'); Serial.println((versiondata >> 8) & 0xFF, DEC);
+
   // configure board to read RFID tags
   nfc.SAMConfig();
 }
@@ -75,36 +63,36 @@ void loop(void) {
   uint8_t blankAccessBits[3] = { 0xff, 0x07, 0x80 };
   uint8_t idx = 0;
   uint8_t numOfSector = 16;                 // Assume Mifare Classic 1K for now (16 4-block sectors)
-  
+
   Serial.println("Place your NDEF formatted Mifare Classic 1K card on the reader");
   Serial.println("and press any key to continue ...");
-  
+
   // Wait for user input before proceeding
   while (!Serial.available());
   while (Serial.available()) Serial.read();
-    
+
   // Wait for an ISO14443A type card (Mifare, etc.).  When one is found
   // 'uid' will be populated with the UID, and uidLength will indicate
   // if the uid is 4 bytes (Mifare Classic) or 7 bytes (Mifare Ultralight)
   success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength);
 
-  if (success) 
+  if (success)
   {
     // We seem to have a tag ...
     // Display some basic information about it
     Serial.println("Found an ISO14443A card/tag");
-    Serial.print("  UID Length: ");Serial.print(uidLength, DEC);Serial.println(" bytes");
+    Serial.print("  UID Length: "); Serial.print(uidLength, DEC); Serial.println(" bytes");
     Serial.print("  UID Value: ");
     nfc.PrintHex(uid, uidLength);
     Serial.println("");
-    
+
     // Make sure this is a Mifare Classic card
     if (uidLength != 4)
     {
-      Serial.println("Ooops ... this doesn't seem to be a Mifare Classic card!"); 
+      Serial.println("Ooops ... this doesn't seem to be a Mifare Classic card!");
       return;
-    }    
-    
+    }
+
     Serial.println("Seems to be a Mifare Classic card (4 byte UID)");
     Serial.println("");
     Serial.println("Reformatting card for Mifare Classic (please don't touch it!) ... ");
@@ -119,7 +107,7 @@ void loop(void) {
         Serial.print("Authentication failed for sector "); Serial.println(numOfSector);
         return;
       }
-      
+
       // Step 2: Write to the other blocks
       if (idx == 16)
       {
@@ -159,7 +147,7 @@ void loop(void) {
         Serial.print("Unable to write to sector "); Serial.println(numOfSector);
         return;
       }
-      
+
       // Step 3: Reset both keys to 0xFF 0xFF 0xFF 0xFF 0xFF 0xFF
       memcpy(blockBuffer, KEY_DEFAULT_KEYAB, sizeof(KEY_DEFAULT_KEYAB));
       memcpy(blockBuffer + 6, blankAccessBits, sizeof(blankAccessBits));
@@ -174,10 +162,10 @@ void loop(void) {
       }
     }
   }
-  
+
   // Wait a bit before trying again
   Serial.println("\n\nDone!");
   delay(1000);
   Serial.flush();
-  while(Serial.available()) Serial.read();
+  while (Serial.available()) Serial.read();
 }
